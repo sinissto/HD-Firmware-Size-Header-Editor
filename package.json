@@ -1,0 +1,40 @@
+{
+  "name": "firmware-header-tool",
+  "version": "1.0.0",
+  "description": "Firmware header editor — writes file-size minus 4 as a 4-byte LE header",
+  "main": "./out/main/index.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "package": "npm run build && electron-builder",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p src/renderer/tsconfig.json",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "electron-log": "^5.1.2"
+  },
+  "devDependencies": {
+    "@electron-toolkit/preload": "^3.0.0",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "typescript": "^5.5.2",
+    "vitest": "^1.6.0"
+  }
+}
