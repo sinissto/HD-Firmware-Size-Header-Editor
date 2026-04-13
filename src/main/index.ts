@@ -8,11 +8,16 @@ import { writeFirmwareHeader } from "./firmware";
 log.initialize();
 
 function createWindow(): void {
-  const iconExt = process.platform === "win32" ? "ico" : process.platform === "darwin" ? "icns" : "png";
+  const iconExt =
+    process.platform === "win32"
+      ? "ico"
+      : process.platform === "darwin"
+        ? "icns"
+        : "png";
   const mainWindow = new BrowserWindow({
     icon: join(__dirname, `../../resources/icon.${iconExt}`),
     width: 720,
-    height: 480,
+    height: 720,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
