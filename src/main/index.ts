@@ -1,7 +1,9 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
+import * as fs from 'fs'
+import { writeFirmwareHeader } from './firmware'
 
 log.initialize()
 
@@ -34,6 +36,23 @@ function createWindow(): void {
 
   log.info('Main window created')
 }
+
+ipcMain.handle('firmware:select-file', async (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  const result = await dialog.showOpenDialog(win!, {
+    title: 'Select firmware .bin file',
+    filters: [{ name: 'Binary files', extensions: ['bin'] }],
+    properties: ['openFile']
+  })
+  if (result.canceled || result.filePaths.length === 0) return null
+  return result.filePaths[0]
+})
+
+ipcMain.handle('firmware:write-header', (_event, filePath: string) => {
+  const size = fs.statSync(filePath).size
+  writeFirmwareHeader(filePath)
+  return { size, headerValue: size - 4 }
+})
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.firmware.header-tool')
