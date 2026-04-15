@@ -1,10 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import type { BatchResult } from '../main/firmwareTypes'
 
 const firmwareAPI = {
   selectFile: (): Promise<string | null> => ipcRenderer.invoke('firmware:select-file'),
   writeHeader: (filePath: string): Promise<{ size: number; headerValue: number }> =>
-    ipcRenderer.invoke('firmware:write-header', filePath)
+    ipcRenderer.invoke('firmware:write-header', filePath),
+  selectFolder: (): Promise<string | null> => ipcRenderer.invoke('firmware:select-folder'),
+  processBatch: (folderPath: string): Promise<BatchResult> =>
+    ipcRenderer.invoke('firmware:process-batch', folderPath),
 }
 
 // Expose electron utilities to renderer (sandboxed — no raw Node/fs access)

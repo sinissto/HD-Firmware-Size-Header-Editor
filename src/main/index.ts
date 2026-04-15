@@ -3,7 +3,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import log from "electron-log";
 import * as fs from "fs";
-import { writeFirmwareHeader } from "./firmware";
+import { writeFirmwareHeader, processBatchFolder } from "./firmware";
 
 log.initialize();
 
@@ -44,6 +44,7 @@ function createWindow(): void {
   log.info("Main window created");
 }
 
+
 ipcMain.handle("firmware:select-file", async (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   const result = await dialog.showOpenDialog(win!, {
@@ -59,6 +60,20 @@ ipcMain.handle("firmware:write-header", (_event, filePath: string) => {
   const size = fs.statSync(filePath).size;
   writeFirmwareHeader(filePath);
   return { size, headerValue: size - 4 };
+});
+
+ipcMain.handle("firmware:select-folder", async (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const result = await dialog.showOpenDialog(win!, {
+    title: "Select folder containing .bin files",
+    properties: ["openDirectory"],
+  });
+  if (result.canceled || result.filePaths.length === 0) return null;
+  return result.filePaths[0];
+});
+
+ipcMain.handle("firmware:process-batch", (_event, folderPath: string) => {
+  return processBatchFolder(folderPath);
 });
 
 app.whenReady().then(() => {
