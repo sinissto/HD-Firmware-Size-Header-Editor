@@ -39,15 +39,15 @@ export function IndividualFileHeaderEdit(): JSX.Element {
         HD Firmware Header Editor
       </h1>
       <div className="flex-1 min-h-[150px]">
-        <p className="mb-6 text-sm text-gray-400">
+        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
           Select an individual firmware{" "}
-          <code className="rounded bg-gray-800 px-1">.bin</code> file,
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">.bin</code> file,
           verify the path, then write the header.
         </p>
 
-        <p className="mb-6 text-sm text-gray-400">
+        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
           The tool will write{" "}
-          <code className="rounded bg-gray-800 px-1">
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             fileSize&nbsp;-&nbsp;4
           </code>{" "}
           as a 4-byte little-endian value at offset 0.
@@ -58,18 +58,18 @@ export function IndividualFileHeaderEdit(): JSX.Element {
       <button
         onClick={handleSelectFile}
         disabled={busy}
-        className="w-full rounded-lg bg-gray-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-lg bg-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
       >
         Select .bin file…
       </button>
 
       {/* Step 2 — show selected path for verification */}
       {selectedFile && (
-        <div className="mt-4 rounded-lg border border-gray-600 bg-gray-800 p-3">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+        <div className="mt-4 rounded-lg border border-gray-300 bg-gray-100 p-3 dark:border-gray-600 dark:bg-gray-800">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
             Selected file
           </p>
-          <p className="break-all font-mono text-xs text-gray-200">
+          <p className="break-all font-mono text-xs text-gray-700 dark:text-gray-200">
             {selectedFile}
           </p>
         </div>
@@ -85,11 +85,11 @@ export function IndividualFileHeaderEdit(): JSX.Element {
       </button>
 
       {result.kind === "success" && (
-        <div className="w-full mt-6 rounded-lg border border-green-700 bg-green-950 p-4 text-sm">
-          <p className="mb-3 font-semibold text-green-400">
+        <div className="w-full mt-6 rounded-lg border border-green-300 bg-green-50 p-4 text-sm dark:border-green-700 dark:bg-green-950">
+          <p className="mb-3 font-semibold text-green-700 dark:text-green-400">
             Header written successfully
           </p>
-          <dl className="space-y-1 text-gray-300">
+          <dl className="space-y-1 text-gray-700 dark:text-gray-300">
             <div className="flex justify-between gap-4">
               <dt className="text-gray-500">File</dt>
               <dd className="truncate text-right font-mono text-xs">
@@ -118,9 +118,9 @@ export function IndividualFileHeaderEdit(): JSX.Element {
       )}
 
       {result.kind === "error" && (
-        <div className="mt-6 rounded-lg border border-red-700 bg-red-950 p-4 text-sm">
-          <p className="mb-1 font-semibold text-red-400">Error</p>
-          <p className="font-mono text-xs text-red-300">{result.message}</p>
+        <div className="mt-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm dark:border-red-700 dark:bg-red-950">
+          <p className="mb-1 font-semibold text-red-700 dark:text-red-400">Error</p>
+          <p className="font-mono text-xs text-red-600 dark:text-red-300">{result.message}</p>
         </div>
       )}
     </>
