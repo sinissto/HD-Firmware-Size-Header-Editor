@@ -18,8 +18,12 @@ function StatusBanner({ result }: { result: BatchResult }): JSX.Element {
   if (result.status === "error" && result.fatalError) {
     return (
       <div className="mt-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm dark:border-red-700 dark:bg-red-950">
-        <p className="mb-1 font-semibold text-red-700 dark:text-red-400">Error</p>
-        <p className="font-mono text-xs text-red-600 dark:text-red-300">{result.fatalError}</p>
+        <p className="mb-1 font-semibold text-red-700 dark:text-red-400">
+          Error
+        </p>
+        <p className="font-mono text-xs text-red-600 dark:text-red-300">
+          {result.fatalError}
+        </p>
       </div>
     );
   }
@@ -89,7 +93,9 @@ function FileRow({ file }: { file: FileResult }): JSX.Element {
           </dl>
         )}
       {!isSuccess && file.error && (
-        <p className="mt-2 font-mono text-red-600 dark:text-red-300">{file.error}</p>
+        <p className="mt-2 font-mono text-red-600 dark:text-red-300">
+          {file.error}
+        </p>
       )}
     </li>
   );
@@ -158,20 +164,24 @@ export function BatchPanel(): JSX.Element {
   return (
     <>
       <h1 className="mb-8 text-2xl font-bold tracking-tight">
-        HD Firmware Batch Processor
+        Firmware Batch Processor
       </h1>
       <div className="flex-1 min-h-[150px]">
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
           Select a folder containing{" "}
-          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">.bin</code> files. A copy
-          named{" "}
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
+            .bin
+          </code>{" "}
+          files. A copy named{" "}
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             &lt;folderName&gt;_EDITED
           </code>{" "}
           will be created alongside the original and all{" "}
-          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">.bin</code> files inside
-          will have their headers written. Your original files are never
-          modified.
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
+            .bin
+          </code>{" "}
+          files inside will have their headers written. Your original files are
+          never modified.
         </p>
       </div>
 

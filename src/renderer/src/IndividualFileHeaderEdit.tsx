@@ -36,13 +36,15 @@ export function IndividualFileHeaderEdit(): JSX.Element {
   return (
     <>
       <h1 className="mb-8 text-2xl font-bold tracking-tight">
-        HD Firmware Header Editor
+        Individual File Header Editor
       </h1>
       <div className="flex-1 min-h-[150px]">
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
           Select an individual firmware{" "}
-          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">.bin</code> file,
-          verify the path, then write the header.
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
+            .bin
+          </code>{" "}
+          file, verify the path, then write the header.
         </p>
 
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
@@ -106,10 +108,7 @@ export function IndividualFileHeaderEdit(): JSX.Element {
               <dt className="text-gray-500">Header value</dt>
               <dd className="font-mono">
                 {result.headerValue.toLocaleString()} (0x
-                {result.headerValue
-                  .toString(16)
-                  .toUpperCase()
-                  .padStart(8, "0")}
+                {result.headerValue.toString(16).toUpperCase().padStart(8, "0")}
                 )
               </dd>
             </div>
@@ -119,8 +118,12 @@ export function IndividualFileHeaderEdit(): JSX.Element {
 
       {result.kind === "error" && (
         <div className="mt-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm dark:border-red-700 dark:bg-red-950">
-          <p className="mb-1 font-semibold text-red-700 dark:text-red-400">Error</p>
-          <p className="font-mono text-xs text-red-600 dark:text-red-300">{result.message}</p>
+          <p className="mb-1 font-semibold text-red-700 dark:text-red-400">
+            Error
+          </p>
+          <p className="font-mono text-xs text-red-600 dark:text-red-300">
+            {result.message}
+          </p>
         </div>
       )}
     </>
