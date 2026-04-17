@@ -78,6 +78,14 @@ ipcMain.handle("firmware:process-batch", (_event, folderPath: string) => {
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.firmware.header-tool");
 
+  app.setAboutPanelOptions({
+    applicationName: "Firmware Header Editor",
+    applicationVersion: app.getVersion(),
+    version: app.getVersion(),
+    copyright: `© ${new Date().getFullYear()}`,
+    iconPath: join(__dirname, "../../resources/icon.png"),
+  });
+
   app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
