@@ -17,7 +17,7 @@ function createWindow(): void {
   const mainWindow = new BrowserWindow({
     icon: join(__dirname, `../../resources/icon.${iconExt}`),
     width: 720,
-    height: 720,
+    height: 1000,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
@@ -43,7 +43,6 @@ function createWindow(): void {
 
   log.info("Main window created");
 }
-
 
 ipcMain.handle("firmware:select-file", async (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);

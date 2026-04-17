@@ -37,12 +37,12 @@ function App(): JSX.Element {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-950 text-gray-100 p-8">
-      <div className="flex flex-col lg:flex-row gap-8 items-stretch w-full max-w-5xl">
+      <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start justify-center w-full">
         <div className="w-full max-w-xl rounded-2xl border border-gray-700 bg-gray-900 p-10 shadow-xl">
           <h1 className="mb-8 text-2xl font-bold tracking-tight">
             HD Firmware Header Editor
           </h1>
-          <div className="flex-1">
+          <div className="flex-1 min-h-[150px]">
             <p className="mb-6 text-sm text-gray-400">
               Select an individual firmware{" "}
               <code className="rounded bg-gray-800 px-1">.bin</code> file,
@@ -89,7 +89,7 @@ function App(): JSX.Element {
           </button>
 
           {result.kind === "success" && (
-            <div className="mt-6 rounded-lg border border-green-700 bg-green-950 p-4 text-sm">
+            <div className="w-full mt-6 rounded-lg border border-green-700 bg-green-950 p-4 text-sm">
               <p className="mb-3 font-semibold text-green-400">
                 Header written successfully
               </p>
