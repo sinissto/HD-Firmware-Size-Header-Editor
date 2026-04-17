@@ -85,3 +85,7 @@ Lives in `src/main/firmware.ts`:
 - IPC channel names must be declared in the preload `contextBridge` before the renderer can call them
 - `electron-builder` config goes in `electron-builder.yml`, not `package.json` build field
 - `electron-vite` has a different config structure than plain Vite — check `electron.vite.config.ts`
+
+## App Heading Implementation
+
+- for creating app heading start by reading `/feature_plan/app_heading.md` in full before writing any code
