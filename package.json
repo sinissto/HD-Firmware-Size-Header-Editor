@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Firmware header editor — writes file-size minus 4 as a 4-byte LE header",
   "main": "./out/main/index.js",
-  "author": "",
+  "author": "Sinisa Stojanovic <sinisha.stojanovic@gmail.com>",
   "license": "MIT",
   "scripts": {
     "dev": "electron-vite dev",
