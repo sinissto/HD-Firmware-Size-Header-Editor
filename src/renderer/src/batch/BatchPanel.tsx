@@ -42,7 +42,7 @@ export function BatchPanel(): JSX.Element {
   return (
     <>
       <h1 className="mb-8 text-2xl font-bold tracking-tight">
-        Firmware Batch Processor
+        Firmware Size Batch Processor
       </h1>
       <div className="flex-1 min-h-[150px]">
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">

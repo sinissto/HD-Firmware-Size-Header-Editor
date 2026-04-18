@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { basename, dirname, join } from 'path'
+import { basename, dirname, extname, join } from 'path'
 import log from 'electron-log'
 import type { BatchResult, FileResult } from './firmwareTypes'
 
@@ -31,6 +31,22 @@ export function writeFirmwareHeader(filePath: string): void {
   } finally {
     fs.closeSync(fd)
   }
+}
+
+/**
+ * Copies a single file to a sibling file named `<stem>_EDITED<ext>`.
+ * If the destination already exists it is overwritten.
+ *
+ * @returns The absolute path of the newly created `_EDITED` file.
+ */
+export function copyFileToEdited(sourceFilePath: string): string {
+  const ext = extname(sourceFilePath)
+  const stem = basename(sourceFilePath, ext)
+  const destPath = join(dirname(sourceFilePath), `${stem}_EDITED${ext}`)
+
+  fs.copyFileSync(sourceFilePath, destPath)
+  log.info(`Copied ${sourceFilePath} -> ${destPath}`)
+  return destPath
 }
 
 /**

@@ -4,7 +4,7 @@ import type { BatchResult } from '../main/firmwareTypes'
 
 const firmwareAPI = {
   selectFile: (): Promise<string | null> => ipcRenderer.invoke('firmware:select-file'),
-  writeHeader: (filePath: string): Promise<{ size: number; headerValue: number }> =>
+  writeHeader: (filePath: string): Promise<{ size: number; headerValue: number; editedFilePath: string }> =>
     ipcRenderer.invoke('firmware:write-header', filePath),
   selectFolder: (): Promise<string | null> => ipcRenderer.invoke('firmware:select-folder'),
   processBatch: (folderPath: string): Promise<BatchResult> =>

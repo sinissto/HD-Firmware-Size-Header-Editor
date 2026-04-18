@@ -13,10 +13,10 @@ export function AppHeader(): JSX.Element {
           />
           <div>
             <h1 className="text-lg font-bold tracking-tight">
-              HD Firmware Header Editor
+              HD Firmware Size Header Editor
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Patch firmware .bin headers in seconds
+              Patch firmware .bin size headers in seconds
             </p>
           </div>
         </div>

@@ -2,7 +2,12 @@ import { useState } from "react";
 
 type WriteResult =
   | { kind: "idle" }
-  | { kind: "success"; size: number; headerValue: number }
+  | {
+      kind: "success";
+      size: number;
+      headerValue: number;
+      editedFilePath: string;
+    }
   | { kind: "error"; message: string };
 
 export function IndividualFileHeaderEdit(): JSX.Element {
@@ -22,9 +27,9 @@ export function IndividualFileHeaderEdit(): JSX.Element {
     setBusy(true);
     setResult({ kind: "idle" });
     try {
-      const { size, headerValue } =
+      const { size, headerValue, editedFilePath } =
         await window.firmwareAPI.writeHeader(selectedFile);
-      setResult({ kind: "success", size, headerValue });
+      setResult({ kind: "success", size, headerValue, editedFilePath });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setResult({ kind: "error", message });
@@ -36,7 +41,7 @@ export function IndividualFileHeaderEdit(): JSX.Element {
   return (
     <>
       <h1 className="mb-8 text-2xl font-bold tracking-tight">
-        Individual File Header Editor
+        Individual File Size Header Editor
       </h1>
       <div className="flex-1 min-h-[150px]">
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
@@ -93,9 +98,15 @@ export function IndividualFileHeaderEdit(): JSX.Element {
           </p>
           <dl className="space-y-1 text-gray-700 dark:text-gray-300">
             <div className="flex justify-between gap-4">
-              <dt className="text-gray-500">File</dt>
-              <dd className="truncate text-right font-mono text-xs">
+              <dt className="text-gray-500">Original file</dt>
+              <dd className="break-all text-right font-mono text-xs">
                 {selectedFile}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-gray-500">Edited file</dt>
+              <dd className="break-all text-right font-mono text-xs">
+                {result.editedFilePath}
               </dd>
             </div>
             <div className="flex justify-between gap-4">

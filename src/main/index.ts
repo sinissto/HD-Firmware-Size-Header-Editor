@@ -3,7 +3,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import log from "electron-log";
 import * as fs from "fs";
-import { writeFirmwareHeader, processBatchFolder } from "./firmware";
+import { writeFirmwareHeader, copyFileToEdited, processBatchFolder } from "./firmware";
 
 log.initialize();
 
@@ -57,8 +57,9 @@ ipcMain.handle("firmware:select-file", async (event) => {
 
 ipcMain.handle("firmware:write-header", (_event, filePath: string) => {
   const size = fs.statSync(filePath).size;
-  writeFirmwareHeader(filePath);
-  return { size, headerValue: size - 4 };
+  const editedFilePath = copyFileToEdited(filePath);
+  writeFirmwareHeader(editedFilePath);
+  return { size, headerValue: size - 4, editedFilePath };
 });
 
 ipcMain.handle("firmware:select-folder", async (event) => {

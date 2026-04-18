@@ -18,7 +18,7 @@ declare global {
 
   interface FirmwareAPI {
     selectFile: () => Promise<string | null>
-    writeHeader: (filePath: string) => Promise<{ size: number; headerValue: number }>
+    writeHeader: (filePath: string) => Promise<{ size: number; headerValue: number; editedFilePath: string }>
     selectFolder: () => Promise<string | null>
     processBatch: (folderPath: string) => Promise<BatchResult>
   }
