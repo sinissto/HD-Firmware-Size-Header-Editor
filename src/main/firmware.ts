@@ -69,13 +69,15 @@ export function copyFolderToEdited(sourcePath: string): string {
   return destPath
 }
 
+const FIRMWARE_EXTENSIONS = ['.bin', '.rpm', '.bad']
+
 /**
- * Returns paths of all top-level .bin files in the given folder, sorted alphabetically.
+ * Returns paths of all top-level firmware files (.bin, .rpm, .bad) in the given folder, sorted alphabetically.
  */
 export function scanBinFiles(folderPath: string): string[] {
   return fs
     .readdirSync(folderPath, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.bin'))
+    .filter((entry) => entry.isFile() && FIRMWARE_EXTENSIONS.includes(extname(entry.name).toLowerCase()))
     .map((entry) => join(folderPath, entry.name))
     .sort()
 }
@@ -141,7 +143,7 @@ export function processBatchFolder(sourceFolderPath: string): BatchResult {
       status: 'error',
       editedFolderPath,
       files: [],
-      fatalError: 'No .bin files found in the selected folder',
+      fatalError: 'No firmware files (.bin, .rpm, .bad) found in the selected folder',
     }
   }
 

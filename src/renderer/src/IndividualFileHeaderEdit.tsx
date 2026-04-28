@@ -48,6 +48,14 @@ export function IndividualFileHeaderEdit(): JSX.Element {
           Select an individual firmware{" "}
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             .bin
+          </code>
+          {", "}
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
+            .rpm
+          </code>
+          {", or "}
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
+            .bad
           </code>{" "}
           file, verify the path, then write the header.
         </p>
@@ -67,7 +75,7 @@ export function IndividualFileHeaderEdit(): JSX.Element {
         disabled={busy}
         className="w-full rounded-lg bg-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
       >
-        Select .bin file…
+        Select firmware file…
       </button>
 
       {/* Step 2 — show selected path for verification */}

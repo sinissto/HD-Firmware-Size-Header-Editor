@@ -47,8 +47,8 @@ function createWindow(): void {
 ipcMain.handle("firmware:select-file", async (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   const result = await dialog.showOpenDialog(win!, {
-    title: "Select firmware .bin file",
-    filters: [{ name: "Binary files", extensions: ["bin"] }],
+    title: "Select firmware file",
+    filters: [{ name: "Firmware files", extensions: ["bin", "rpm", "bad"] }],
     properties: ["openFile"],
   });
   if (result.canceled || result.filePaths.length === 0) return null;
