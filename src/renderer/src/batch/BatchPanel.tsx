@@ -46,11 +46,19 @@ export function BatchPanel(): JSX.Element {
       </h1>
       <div className="flex-1 min-h-[150px]">
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-          Select a folder containing{" "}
+          Select a folder containing firmware (
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             .bin
+          </code>
+          ,
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
+            .rpm
           </code>{" "}
-          files. A copy named{" "}
+          or
+          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
+            .bad
+          </code>
+          ) files. A copy named{" "}
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             &lt;folderName&gt;_EDITED
           </code>{" "}
