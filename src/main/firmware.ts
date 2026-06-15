@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import { basename, dirname, extname, join } from 'path'
 import log from 'electron-log'
-import type { BatchResult, FileResult } from './firmwareTypes'
+import type { BatchResult, FileResult, FirmwareActions } from './firmwareTypes'
+import { runActionsOnFile, hasAnyAction } from './actions'
 
 /**
  * Writes a 4-byte little-endian length header at offset 0 of the given file.
@@ -83,13 +84,25 @@ export function scanBinFiles(folderPath: string): string[] {
 }
 
 /**
- * Copies the source folder to `<folderName>_EDITED`, then writes the firmware
- * header into every .bin file found in the copy.
+ * Copies the source folder to `<folderName>_EDITED`, then runs the selected
+ * firmware actions on every firmware file found in the copy.
  *
  * Never throws — all errors are captured in the returned BatchResult.
  */
-export function processBatchFolder(sourceFolderPath: string): BatchResult {
+export function processBatchFolder(
+  sourceFolderPath: string,
+  actions: FirmwareActions,
+): BatchResult {
   log.info(`Batch processing started: ${sourceFolderPath}`)
+
+  if (!hasAnyAction(actions)) {
+    return {
+      status: 'error',
+      editedFolderPath: '',
+      files: [],
+      fatalError: 'No action selected',
+    }
+  }
 
   // Phase 1 — validate source
   let stat: fs.Stats
@@ -147,23 +160,33 @@ export function processBatchFolder(sourceFolderPath: string): BatchResult {
     }
   }
 
-  // Phase 4 — process each file
+  // Phase 4 — run selected actions on each file
   const files: FileResult[] = binFiles.map((filePath) => {
     const fileName = basename(filePath)
+    let size: number | undefined
     try {
-      const size = fs.statSync(filePath).size
-      writeFirmwareHeader(filePath)
-      log.info(`Batch: wrote header for ${fileName}`)
-      return { fileName, status: 'success', size, headerValue: size - 4 }
+      size = fs.statSync(filePath).size
     } catch (e) {
-      log.warn(`Batch: failed for ${fileName}: ${(e as Error).message}`)
-      return { fileName, status: 'error', error: (e as Error).message }
+      log.warn(`Batch: cannot stat ${fileName}: ${(e as Error).message}`)
+      return {
+        fileName,
+        status: 'error',
+        actions: [
+          { action: 'headerSize', status: 'error', error: (e as Error).message },
+        ],
+      }
     }
+
+    const outcomes = runActionsOnFile(filePath, actions)
+    const fileStatus: FileResult['status'] = outcomes.every((o) => o.status === 'success')
+      ? 'success'
+      : 'error'
+    return { fileName, status: fileStatus, size, actions: outcomes }
   })
 
-  const hasError = files.some((f) => f.status === 'error')
-  const hasSuccess = files.some((f) => f.status === 'success')
-  const status: BatchResult['status'] = !hasError ? 'success' : hasSuccess ? 'partial' : 'error'
+  const successCount = files.filter((f) => f.status === 'success').length
+  const status: BatchResult['status'] =
+    successCount === files.length ? 'success' : successCount === 0 ? 'error' : 'partial'
 
   log.info(`Batch complete: ${status}, ${files.length} files`)
   return { status, editedFolderPath, files }

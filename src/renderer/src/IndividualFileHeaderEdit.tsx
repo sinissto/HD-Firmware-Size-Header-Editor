@@ -1,38 +1,40 @@
 import { useState } from "react";
+import {
+  ActionsCheckboxes,
+  DEFAULT_ACTIONS,
+  hasAnyAction,
+} from "./components/ActionsCheckboxes";
+import { ActionOutcomesList } from "./components/ActionOutcomesList";
 
-type WriteResult =
+type RunState =
   | { kind: "idle" }
-  | {
-      kind: "success";
-      size: number;
-      headerValue: number;
-      editedFilePath: string;
-    }
+  | { kind: "done"; result: IndividualResult }
   | { kind: "error"; message: string };
 
 export function IndividualFileHeaderEdit(): JSX.Element {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
-  const [result, setResult] = useState<WriteResult>({ kind: "idle" });
+  const [actions, setActions] = useState<FirmwareActions>(DEFAULT_ACTIONS);
+  const [state, setState] = useState<RunState>({ kind: "idle" });
   const [busy, setBusy] = useState(false);
+  const noActionSelected = !hasAnyAction(actions);
 
   async function handleSelectFile(): Promise<void> {
     const filePath = await window.firmwareAPI.selectFile();
     if (!filePath) return;
     setSelectedFile(filePath);
-    setResult({ kind: "idle" });
+    setState({ kind: "idle" });
   }
 
-  async function handleWriteHeader(): Promise<void> {
-    if (!selectedFile) return;
+  async function handleRun(): Promise<void> {
+    if (!selectedFile || noActionSelected) return;
     setBusy(true);
-    setResult({ kind: "idle" });
+    setState({ kind: "idle" });
     try {
-      const { size, headerValue, editedFilePath } =
-        await window.firmwareAPI.writeHeader(selectedFile);
-      setResult({ kind: "success", size, headerValue, editedFilePath });
+      const result = await window.firmwareAPI.runActions(selectedFile, actions);
+      setState({ kind: "done", result });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setResult({ kind: "error", message });
+      setState({ kind: "error", message });
     } finally {
       setBusy(false);
     }
@@ -41,7 +43,7 @@ export function IndividualFileHeaderEdit(): JSX.Element {
   return (
     <>
       <h1 className="mb-8 text-2xl font-bold tracking-tight">
-        Individual File Size Header Editor
+        Individual Firmware File Editor
       </h1>
       <div className="flex-1 min-h-[150px]">
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
@@ -57,15 +59,13 @@ export function IndividualFileHeaderEdit(): JSX.Element {
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             .bad
           </code>{" "}
-          file, verify the path, then write the header.
-        </p>
-
-        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-          The tool will write{" "}
+          file, choose which actions to run, then click{" "}
+          <strong>RUN SELECTED ACTION(s)</strong>. The original file is never
+          modified — actions run on a sibling{" "}
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
-            fileSize&nbsp;-&nbsp;4
+            _EDITED
           </code>{" "}
-          as a 4-byte little-endian value at offset 0.
+          copy.
         </p>
       </div>
 
@@ -78,7 +78,6 @@ export function IndividualFileHeaderEdit(): JSX.Element {
         Select firmware file…
       </button>
 
-      {/* Step 2 — show selected path for verification */}
       {selectedFile && (
         <div className="mt-4 rounded-lg border border-gray-300 bg-gray-100 p-3 dark:border-gray-600 dark:bg-gray-800">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -90,21 +89,47 @@ export function IndividualFileHeaderEdit(): JSX.Element {
         </div>
       )}
 
-      {/* Step 3 — write header */}
+      {/* Step 2 — choose actions */}
+      <ActionsCheckboxes
+        actions={actions}
+        onChange={setActions}
+        disabled={busy}
+      />
+
+      {/* Step 3 — run */}
       <button
-        onClick={handleWriteHeader}
-        disabled={!selectedFile || busy}
+        onClick={handleRun}
+        disabled={!selectedFile || busy || noActionSelected}
         className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {busy ? "Writing…" : "Write Header"}
+        {busy ? "Running…" : "RUN SELECTED ACTION(s)"}
       </button>
+      {noActionSelected && (
+        <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+          Select at least one action to enable the button.
+        </p>
+      )}
 
-      {result.kind === "success" && (
-        <div className="w-full mt-6 rounded-lg border border-green-300 bg-green-50 p-4 text-sm dark:border-green-700 dark:bg-green-950">
-          <p className="mb-3 font-semibold text-green-700 dark:text-green-400">
-            Header written successfully
+      {state.kind === "done" && (
+        <div
+          className={`w-full mt-6 rounded-lg border p-4 text-sm ${
+            state.result.status === "success"
+              ? "border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950"
+              : "border-yellow-300 bg-yellow-50 dark:border-yellow-700 dark:bg-yellow-950"
+          }`}
+        >
+          <p
+            className={`mb-3 font-semibold ${
+              state.result.status === "success"
+                ? "text-green-700 dark:text-green-400"
+                : "text-yellow-700 dark:text-yellow-400"
+            }`}
+          >
+            {state.result.status === "success"
+              ? "All selected actions succeeded"
+              : "Some actions failed"}
           </p>
-          <dl className="space-y-1 text-gray-700 dark:text-gray-300">
+          <dl className="mb-3 space-y-1 text-gray-700 dark:text-gray-300">
             <div className="flex justify-between gap-4">
               <dt className="text-gray-500">Original file</dt>
               <dd className="break-all text-right font-mono text-xs">
@@ -114,34 +139,27 @@ export function IndividualFileHeaderEdit(): JSX.Element {
             <div className="flex justify-between gap-4">
               <dt className="text-gray-500">Edited file</dt>
               <dd className="break-all text-right font-mono text-xs">
-                {result.editedFilePath}
+                {state.result.editedFilePath}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-gray-500">File size</dt>
               <dd className="font-mono">
-                {result.size.toLocaleString()} bytes
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-gray-500">Header value</dt>
-              <dd className="font-mono">
-                {result.headerValue.toLocaleString()} (0x
-                {result.headerValue.toString(16).toUpperCase().padStart(8, "0")}
-                )
+                {state.result.size.toLocaleString()} bytes
               </dd>
             </div>
           </dl>
+          <ActionOutcomesList outcomes={state.result.actions} />
         </div>
       )}
 
-      {result.kind === "error" && (
+      {state.kind === "error" && (
         <div className="mt-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm dark:border-red-700 dark:bg-red-950">
           <p className="mb-1 font-semibold text-red-700 dark:text-red-400">
             Error
           </p>
           <p className="font-mono text-xs text-red-600 dark:text-red-300">
-            {result.message}
+            {state.message}
           </p>
         </div>
       )}

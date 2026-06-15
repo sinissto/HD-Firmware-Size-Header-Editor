@@ -3,7 +3,9 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import log from "electron-log";
 import * as fs from "fs";
-import { writeFirmwareHeader, copyFileToEdited, processBatchFolder } from "./firmware";
+import { copyFileToEdited, processBatchFolder } from "./firmware";
+import { runActionsOnFile, hasAnyAction } from "./actions";
+import type { FirmwareActions, IndividualResult } from "./firmwareTypes";
 
 log.initialize();
 
@@ -55,12 +57,23 @@ ipcMain.handle("firmware:select-file", async (event) => {
   return result.filePaths[0];
 });
 
-ipcMain.handle("firmware:write-header", (_event, filePath: string) => {
-  const size = fs.statSync(filePath).size;
-  const editedFilePath = copyFileToEdited(filePath);
-  writeFirmwareHeader(editedFilePath);
-  return { size, headerValue: size - 4, editedFilePath };
-});
+ipcMain.handle(
+  "firmware:run-actions",
+  (_event, filePath: string, actions: FirmwareActions): IndividualResult => {
+    if (!hasAnyAction(actions)) {
+      throw new Error("No action selected");
+    }
+    const editedFilePath = copyFileToEdited(filePath);
+    const size = fs.statSync(editedFilePath).size;
+    const outcomes = runActionsOnFile(editedFilePath, actions);
+    const status: IndividualResult["status"] = outcomes.every(
+      (o) => o.status === "success",
+    )
+      ? "success"
+      : "error";
+    return { status, editedFilePath, size, actions: outcomes };
+  },
+);
 
 ipcMain.handle("firmware:select-folder", async (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
@@ -72,9 +85,12 @@ ipcMain.handle("firmware:select-folder", async (event) => {
   return result.filePaths[0];
 });
 
-ipcMain.handle("firmware:process-batch", (_event, folderPath: string) => {
-  return processBatchFolder(folderPath);
-});
+ipcMain.handle(
+  "firmware:process-batch",
+  (_event, folderPath: string, actions: FirmwareActions) => {
+    return processBatchFolder(folderPath, actions);
+  },
+);
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.firmware.header-tool");

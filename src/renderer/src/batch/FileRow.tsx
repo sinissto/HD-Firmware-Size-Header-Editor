@@ -1,3 +1,5 @@
+import { ActionOutcomesList } from "../components/ActionOutcomesList";
+
 export function FileRow({ file }: { file: FileResult }): JSX.Element {
   const isSuccess = file.status === "success";
   return (
@@ -10,37 +12,27 @@ export function FileRow({ file }: { file: FileResult }): JSX.Element {
     >
       <div className="flex items-center justify-between gap-4">
         <span
-          className={`font-semibold ${isSuccess ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+          className={`font-semibold ${
+            isSuccess
+              ? "text-green-600 dark:text-green-400"
+              : "text-red-600 dark:text-red-400"
+          }`}
         >
           {isSuccess ? "✓" : "✗"}
         </span>
         <span className="flex-1 break-all font-mono text-gray-700 dark:text-gray-200">
           {file.fileName}
         </span>
-      </div>
-      {isSuccess &&
-        file.size !== undefined &&
-        file.headerValue !== undefined && (
-          <dl className="mt-2 space-y-1 text-gray-500 dark:text-gray-400">
-            <div className="flex justify-between gap-4">
-              <dt>File size</dt>
-              <dd className="font-mono text-gray-700 dark:text-gray-300">
-                {file.size.toLocaleString()} bytes
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt>Header value</dt>
-              <dd className="font-mono text-gray-700 dark:text-gray-300">
-                {file.headerValue.toLocaleString()} (0x
-                {file.headerValue.toString(16).toUpperCase().padStart(8, "0")})
-              </dd>
-            </div>
-          </dl>
+        {file.size !== undefined && (
+          <span className="font-mono text-gray-500 dark:text-gray-400">
+            {file.size.toLocaleString()} B
+          </span>
         )}
-      {!isSuccess && file.error && (
-        <p className="mt-2 font-mono text-red-600 dark:text-red-300">
-          {file.error}
-        </p>
+      </div>
+      {file.actions.length > 0 && (
+        <div className="mt-2 border-t border-gray-300/50 pt-2 dark:border-gray-700/50">
+          <ActionOutcomesList outcomes={file.actions} />
+        </div>
       )}
     </li>
   );

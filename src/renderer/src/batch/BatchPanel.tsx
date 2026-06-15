@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { folderBasename } from "./folderBasename";
 import { BatchResults } from "./BatchResults";
+import {
+  ActionsCheckboxes,
+  DEFAULT_ACTIONS,
+  hasAnyAction,
+} from "../components/ActionsCheckboxes";
 
 type BatchState =
   | { kind: "idle" }
@@ -9,8 +14,10 @@ type BatchState =
 
 export function BatchPanel(): JSX.Element {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [actions, setActions] = useState<FirmwareActions>(DEFAULT_ACTIONS);
   const [state, setState] = useState<BatchState>({ kind: "idle" });
   const busy = state.kind === "busy";
+  const noActionSelected = !hasAnyAction(actions);
 
   async function handleSelectFolder(): Promise<void> {
     const folderPath = await window.firmwareAPI.selectFolder();
@@ -19,11 +26,14 @@ export function BatchPanel(): JSX.Element {
     setState({ kind: "idle" });
   }
 
-  async function handleProcessBatch(): Promise<void> {
-    if (!selectedFolder) return;
+  async function handleRun(): Promise<void> {
+    if (!selectedFolder || noActionSelected) return;
     setState({ kind: "busy" });
     try {
-      const result = await window.firmwareAPI.processBatch(selectedFolder);
+      const result = await window.firmwareAPI.processBatch(
+        selectedFolder,
+        actions,
+      );
       setState({ kind: "done", result });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -42,7 +52,7 @@ export function BatchPanel(): JSX.Element {
   return (
     <>
       <h1 className="mb-8 text-2xl font-bold tracking-tight">
-        Firmware Size Batch Processor
+        Firmware Batch Processor
       </h1>
       <div className="flex-1 min-h-[150px]">
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
@@ -58,16 +68,12 @@ export function BatchPanel(): JSX.Element {
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             .bad
           </code>
-          ) files. A copy named{" "}
+          ) files, choose the actions to run, then click{" "}
+          <strong>RUN SELECTED ACTION(s)</strong>. A copy named{" "}
           <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
             &lt;folderName&gt;_EDITED
           </code>{" "}
-          will be created alongside the original and all{" "}
-          <code className="rounded bg-gray-100 px-1 dark:bg-gray-800">
-            .bin
-          </code>{" "}
-          files inside will have their headers written. Your original files are
-          never modified.
+          is created alongside the original. Your originals are never modified.
         </p>
       </div>
 
@@ -80,7 +86,6 @@ export function BatchPanel(): JSX.Element {
         Select folder…
       </button>
 
-      {/* Step 2 — show selected folder name */}
       {selectedFolder && (
         <div className="mt-4 rounded-lg border border-gray-300 bg-gray-100 p-3 dark:border-gray-600 dark:bg-gray-800">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -95,16 +100,27 @@ export function BatchPanel(): JSX.Element {
         </div>
       )}
 
-      {/* Step 3 — process */}
+      {/* Step 2 — choose actions */}
+      <ActionsCheckboxes
+        actions={actions}
+        onChange={setActions}
+        disabled={busy}
+      />
+
+      {/* Step 3 — run */}
       <button
-        onClick={handleProcessBatch}
-        disabled={!selectedFolder || busy}
+        onClick={handleRun}
+        disabled={!selectedFolder || busy || noActionSelected}
         className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {busy ? "Processing…" : "Process Folder"}
+        {busy ? "Running…" : "RUN SELECTED ACTION(s)"}
       </button>
+      {noActionSelected && (
+        <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+          Select at least one action to enable the button.
+        </p>
+      )}
 
-      {/* Results */}
       {state.kind === "done" && <BatchResults result={state.result} />}
     </>
   );
